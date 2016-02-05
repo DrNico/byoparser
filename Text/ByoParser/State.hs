@@ -17,8 +17,6 @@ module Text.ByoParser.State (
 ) where
 
 import Data.Bool
-import Data.ByteString ( ByteString )
-import qualified Data.ByteString.UTF8 as UTF8
 import Data.Monoid
 
 import Prelude ( Int, Char, Eq(..), Num(..), otherwise )
@@ -43,6 +41,9 @@ incrCol (SourcePos l c) = SourcePos l (c + 1)
 -- State storing the SourcePos data
 -----
 
+{-|
+Data type to use as a parser State for tracking source location.
+-}
 data PosState u = PosState {
 pos         :: !Int,
 loc         :: !SourcePos,

@@ -2,6 +2,14 @@
         TypeFamilies
   #-}
 
+{-|
+Module          : Text.ByoParser.Stream
+Description     : Primitive parsers that consume an input stream
+Copyright       : (c) 2016 Nicolas Godbout
+License         : MIT
+Maintainer      : nicolas.godbout@gmail.com
+Stability       : unstable
+-}
 module Text.ByoParser.Stream (
     ByoStream(Token, anyToken, string, scan),
     -- * Parsing tokens

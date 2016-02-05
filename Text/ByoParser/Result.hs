@@ -54,8 +54,9 @@ parsePartial p i s =
 Parse the given stream with the given initial parsing state, and extract
 a 'PartialResult' within the associated 'Monad'.
 -}
-parsePartialM :: ParserPrim i e s (PartialResult i e r) r
-              -> i -> s -> PartialResult i e r
+parsePartialM :: Monad m
+              => ParserPrim i e s (PartialResult i e r) r
+              -> i -> s -> m (PartialResult i e r)
 parsePartialM = undefined
 
 {-|

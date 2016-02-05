@@ -1,0 +1,71 @@
+name:                byoparser
+version:             0.1.0.0
+synopsis:            Build your own Parser using pre-made components
+description:
+  The solution to your parsing needs: Build your own Parser. This library
+  provides several variants for each component of a typical parser: input stream
+  type, stream matchers, combinators, parser state, error reporting and recovery,
+  and results generation. Combine the library components to get the parser /you/
+  need.
+  .
+    * Input stream types: String, Text, and three variants for ByteString,
+      Word8, ASCII Char or UTF8-encoded Char.
+    * Parser state: optional tracking of source locations, optional
+      tracking of layout, or simply provide your own parser state
+    * Parser combinators: non-backtracking by default, with back-tracking
+      capabilities
+    * Error reporting: plug-in your own error type, recovery mechanism for
+      parse errors
+    * Results generation: optional partial results, monadic actions on results,
+      lazy token stream generation
+
+homepage:            https://github.com/DrNico/byoparser.git
+license:             MIT
+license-file:        LICENSE
+author:              Nicolas Godbout
+maintainer:          nicolas.godbout@gmail.com
+copyright:           (c) 2016 Nicolas Godbout
+category:            Text
+stability:           unstable
+build-type:          Simple
+cabal-version:       >=1.10
+
+source-repository head
+  type:              git
+  location:          https://github.com/DrNico/byoparser.git
+
+source-repository this
+  type:              git
+  location:          https://github.com/DrNico/byoparser.git
+  tag:               0.1.0.0
+
+library
+  exposed-modules:     Text.ByoParser,
+                       Text.ByoParser.Combinator,
+                       Text.ByoParser.Error,
+                       Text.ByoParser.Prim,
+                       Text.ByoParser.Result,
+                       Text.ByoParser.State,
+                       Text.ByoParser.Stream
+                      --  Text.ByoParser.Stream.UTF8
+                      --  Text.ByoParser.Stream.String,
+                      --  Text.ByoParser.Stream.ByteString.ASCII,
+                      --  Text.ByoParser.Stream.ByteString.UTF8,
+                      --  Text.ByoParser.Stream.ByteString.Word8,
+                      --  Text.ByoParser.Stream.Text
+
+--  other-modules:       Text.ByoParser.Internal
+
+  default-language:    Haskell2010
+  other-extensions:    RankNTypes,
+                       TypeFamilies,
+                       FlexibleInstances,
+                       TypeSynonymInstances
+
+  build-depends:       base >=4.8 && <5.0,
+                       bytestring >=0.10 && <1.0,
+                       mtl >=2.2.1
+--                       utf8-string >=1.0.1.1 && <1.1
+
+  -- Directories containing source files.
+  -- hs-source-dirs:

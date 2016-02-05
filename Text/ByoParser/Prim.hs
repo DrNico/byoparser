@@ -5,7 +5,7 @@ Description     : Primitive types over which all parsers are based
 Copyright       : (c) 2016 Nicolas Godbout
 License         : MIT
 Maintainer      : nicolas.godbout@gmail.com
-Stability       : provisional
+Stability       : unstable
 
 The primitive parser type 'ParserPrim' underlies all parsers and stream
 recognizers. The recommended usage is to define a type alias over the primitive
