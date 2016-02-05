@@ -1,7 +1,5 @@
-{-# LANGUAGE
-        TypeFamilies
-  #-}
-
+{-# LANGUAGE TypeFamilies #-}
+{-# OPTIONS_HADDOCK show-extensions #-}
 {-|
 Module          : Text.ByoParser.Stream
 Description     : Primitive parsers that consume an input stream
@@ -9,10 +7,19 @@ Copyright       : (c) 2016 Nicolas Godbout
 License         : MIT
 Maintainer      : nicolas.godbout@gmail.com
 Stability       : unstable
+
+This module defines primitive parsers that are polymorphic over types of
+input streams. Supporting a new input stream type requires writing only three
+primitive parsers as methods of the 'ByoStream' class. All other parser
+definitions derive from this class.
+
+For parsing over a standard input stream, it is recommended, for
+efficiency, to import the corresponding specific module instead.
 -}
 module Text.ByoParser.Stream (
+    -- * Primitive parsers over an input stream
     ByoStream(Token, anyToken, string, scan),
-    -- * Parsing tokens
+    -- * Parsing individual tokens
     token,
     notToken,
     satisfy,
@@ -20,7 +27,7 @@ module Text.ByoParser.Stream (
     skip,
     endOfLine,
     endOfInput,
-    -- * Lookahead
+    -- * Token lookahead
     peekChar,
     peekChar',
     -- * Parsing strings of tokens
@@ -44,12 +51,48 @@ import Prelude (
 Class of input streams compatible with 'ParserPrim'.
 -}
 class ByoStream i where
+    {-|
+    The type of elements of the stream. Instances of the library
+    define the tokens as
+
+        > type Token [token] = token
+        > type Token ByteString = Word8
+        > type Token ByteStringUTF8 = Char
+        > type Token ByteStringASCII = Char
+        > type Token Text = Char
+    -}
     type Token i :: *
 
-    anyToken :: ParserPrim i e s r (Token i)
-    string   :: i -> ParserPrim i e s r i
-    scan     :: t -> (t -> Token i -> Maybe t) -> ParserPrim i e s r (t,i)
+    {-|
+    Produce the next token in the stream, or fail is none is available.
 
+    Instances of this parser must either succeed and consume the token, or
+    fail without consuming part of the stream.
+    -}
+    anyToken :: ParserPrim i e s r (Token i)
+
+    {-|
+    Match the head of the stream with the given string.
+
+    Instances of this parser must either:
+
+      - succeed without consuming input if and only if the matching string is empty
+      - succeed while consuming input
+      - fail without consuming input
+
+    In particular, this parser must match all or nothing and must not require
+    back-tracking.
+    -}
+    string   :: i -> ParserPrim i e s r i
+
+    {-|
+    Accumulate tokens that satisfy a stateful predicate function. The first
+    argument supplies the initial state. Produce the final state and the
+    string containing all tokens that satisfy the predicate.
+
+    Instances of this parser must never fail.
+    -}
+    scan     :: t -> (t -> Token i -> Maybe t) -> ParserPrim i e s r (t,i)
 
 {-|
 Match the given token.
@@ -124,9 +167,9 @@ skip test = Prim $ \noC okS noS okC ->
 {-|
 Consumes any of the three common line terminators:
 
-  * @\r@ carriage return
-  * @\n@ line-feed
-  * @\r\n@ carriage return and line-feed
+  * @\\r@ carriage return
+  * @\\n@ line-feed
+  * @\\r\\n@ carriage return and line-feed
 
 -}
 endOfLine :: (ByoStream i, t ~ Token i, Enum t)
