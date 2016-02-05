@@ -5,7 +5,7 @@ Description     : Parser combinators
 Copyright       : (c) 2016 Nicolas Godbout
 License         : MIT
 Maintainer      : nicolas.godbout@gmail.com
-Stability       : provisional
+Stability       : unstable
 
 Parser combinators take parser arguments to generate modified parsers.
 

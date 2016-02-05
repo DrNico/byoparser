@@ -8,7 +8,7 @@ Description     : Class of parsing results and drivers
 Copyright       : (c) 2016 Nicolas Godbout
 License         : MIT
 Maintainer      : nicolas.godbout@gmail.com
-Stability       : provisional
+Stability       : unstable
 -}
 module Text.ByoParser.Result (
     -- * Partial results
