@@ -47,11 +47,10 @@ library
                        Text.ByoParser.Result,
                        Text.ByoParser.State,
                        Text.ByoParser.Stream
-                      --  Text.ByoParser.Stream.UTF8
-                      --  Text.ByoParser.Stream.String,
-                      --  Text.ByoParser.Stream.ByteString.ASCII,
-                      --  Text.ByoParser.Stream.ByteString.UTF8,
-                      --  Text.ByoParser.Stream.ByteString.Word8,
+                      --  Text.ByoParser.Stream.List
+                      --  Text.ByoParser.Stream.ByteString,
+                      --  Text.ByoParser.Stream.ByteStringUTF8,
+                      --  Text.ByoParser.Stream.ByteStringASCII,
                       --  Text.ByoParser.Stream.Text
 
 --  other-modules:       Text.ByoParser.Internal

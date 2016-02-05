@@ -37,6 +37,10 @@ module Text.ByoParser.Stream (
     takeTill
 ) where
 
+import Data.ByteString.Internal ( ByteString(..) )
+import qualified Data.ByteString as BS
+import Data.List                ( stripPrefix )
+import Data.Word                ( Word8 )
 
 import Text.ByoParser.Prim      ( ParserPrim(..), ErrorPrim(..) )
 
@@ -44,7 +48,7 @@ import Prelude (
     ($), (.), fst, snd,
     Eq(..), Bool(..), not, Maybe(..),
     Int, Num(..), (>), Enum(..),
-    fmap,
+    fmap, return,
     otherwise, error )
 
 {-|
@@ -287,3 +291,81 @@ takeTill :: ByoStream i
          => (Token i -> Bool) -> ParserPrim i e s r i
 takeTill test = takeWhile (not . test)
 {-# INLINE takeTill #-}
+
+-----
+-- Instances
+-----
+
+instance Eq token => ByoStream [token] where
+    type Token [token] = token
+
+    anyToken = Prim $ \_ _ noS okC ->
+        \i -> case i of
+            tok:toks    -> okC tok toks
+            []          -> noS ErrPrimEOF []
+    {-# INLINE anyToken #-}
+
+    string []  = return []
+    string str = Prim $ \_ _ noS okC ->
+        \i -> case stripPrefix str i of
+            Just rest   -> okC str rest
+            Nothing     -> noS ErrPrimNoMatch i
+    {-# INLINE string #-}
+
+    scan x test = Prim $ \_ okS _ okC ->
+        \i -> case i of
+            tok:toks    -> case test x tok of
+                Just x'     -> \s ->
+                    _scan
+                        (\o i -> okC o i s)
+                        (tok :)
+                        toks x
+                Nothing     -> okS (x,[]) i
+            []          -> okS (x,[]) i
+        where
+            -- _scan :: ((s,[a]) -> [a] -> r) -> ([a] -> [a]) -> [a] -> s -> r
+            _scan done =
+                \prod i x -> case i of
+                    tok:toks        -> case test x tok of
+                        Just x'         -> _scan done (tok :) toks x'
+                        Nothing         -> done (x,prod []) i
+                    []              -> done (x,prod []) i
+    {-# INLINABLE scan #-}
+
+
+instance ByoStream BS.ByteString where
+    type Token BS.ByteString = Word8
+
+    anyToken = Prim $ \_ _ noS okC ->
+        \i -> case BS.uncons i of
+            Just (c,i') -> okC c i'
+            Nothing     -> noS ErrPrimEOF i
+    {-# INLINE anyToken #-}
+
+    string str
+        | BS.null str = return BS.empty
+        | otherwise = Prim $ \_ _ noS okC ->
+            \i -> if str `BS.isPrefixOf` i
+                  then let (o,i') = BS.splitAt (BS.length str) i
+                       in okC o i'
+                  else noS ErrPrimNoMatch i
+    {-# INLINE string #-}
+
+    scan x test = Prim $ \_ okS _ okC ->
+        \i@(PS _ start _) -> case BS.uncons i of
+            Just (c,i') -> case test x c of
+                Just x'     -> \s ->
+                    _scan
+                        (\i'@(PS _ end _) x' -> okC (x', BS.take (end - start) i) i' s)
+                        i' x
+                Nothing     -> okS (x,BS.empty) i
+            Nothing     -> okS (x,BS.empty) i
+        where
+            _scan done =
+                \i s -> case BS.uncons i of
+                    Just (c,i') -> case test s c of
+                        Just s'     ->
+                            _scan done i' s'
+                        Nothing     -> done i s
+                    Nothing     -> done i s
+    {-# INLINABLE scan #-}
