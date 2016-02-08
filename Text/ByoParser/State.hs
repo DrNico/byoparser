@@ -12,8 +12,6 @@ module Text.ByoParser.State (
     SourcePos(..),
     incrLine,
     incrCol
-    -- incrChar,
-    -- incrChars
 ) where
 
 import Data.Bool
@@ -24,8 +22,8 @@ import Prelude ( Int, Char, Eq(..), Num(..), otherwise )
 -- | Data type representing the position, i.e. line and column number,
 --   in a source file.
 data SourcePos = SourcePos {
-line        :: !Int,
-column      :: !Int
+    line        :: !Int,
+    column      :: !Int
 }
 
 -- | Increment the line number by one and reset the column to zero.
@@ -45,9 +43,9 @@ incrCol (SourcePos l c) = SourcePos l (c + 1)
 Data type to use as a parser State for tracking source location.
 -}
 data PosState u = PosState {
-pos         :: !Int,
-loc         :: !SourcePos,
-userState   :: !u
+    pos         :: !Int,
+    loc         :: !SourcePos,
+    userState   :: !u
 }
 
 -----
