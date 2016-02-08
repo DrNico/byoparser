@@ -68,7 +68,7 @@ class ByoStream i where
     type Token i :: *
 
     {-|
-    Produce the next token in the stream, or fail is none is available.
+    Produce the next token in the stream, or fail if none is available.
 
     Instances of this parser must either succeed and consume the token, or
     fail without consuming part of the stream.
@@ -85,7 +85,7 @@ class ByoStream i where
       - fail without consuming input
 
     In particular, this parser must match all or nothing and must not require
-    back-tracking.
+    backtracking.
     -}
     string   :: i -> ParserPrim i e s r i
 
@@ -104,7 +104,7 @@ Match the given token.
 token :: (ByoStream i, tok ~ Token i, Eq tok)
       => tok -> ParserPrim i e s r tok
 token t = satisfy (== t)
-{-# INLINABLE token #-}
+{-# INLINE [0] token #-}
 
 {-|
 Match any but the given token and produce it.
@@ -112,10 +112,10 @@ Match any but the given token and produce it.
 notToken :: (ByoStream i, tok ~ Token i, Eq tok)
       => tok -> ParserPrim i e s r tok
 notToken t = satisfy (/= t)
-{-# INLINABLE notToken #-}
+{-# INLINE [0] notToken #-}
 
 {-|
-Match and produce the next token only if it satisfies the given predicate.
+Match and produce the next token if it satisfies the given predicate.
 -}
 satisfy :: ByoStream i
         => (Token i -> Bool) -> ParserPrim i e s r (Token i)
@@ -151,7 +151,7 @@ satisfyWith conv test = Prim $ \noC okS noS okC ->
 {-# INLINABLE satisfyWith #-}
 
 {-|
-Consume the next token of the input stream only if it satisfies the
+Consume the next token of the input stream if it satisfies the
 given predicate.
 -}
 skip :: ByoStream i
@@ -220,14 +220,14 @@ endOfInput = Prim $ \noC okS noS okC ->
 
 {-|
 Produce the next token of the stream without consuming it, or 'Nothing'
-if there are no token left. This parser never fails.
+if there is no token left. This parser never fails.
 -}
 peekChar :: ByoStream i => ParserPrim i e s r (Maybe (Token i))
 peekChar = fmap fst $ scan Nothing f
     where
         f Nothing c  = Just (Just c)
         f (Just _) _ = Nothing
-{-# INLINABLE peekChar #-}
+{-# INLINE [0] #-}
 
 {-|
 Produce the next token of the stream without consuming it, or fail if
@@ -244,7 +244,7 @@ peekChar' = Prim $ \noC okS noS okC ->
             (error "unpossible! 'peekChar' failed")
             (error "unpossible! 'peekChar' consumed input")
             i
-{-# INLINABLE peekChar' #-}
+{-# INLINE [0] #-}
 
 -----
 -- Capturing stream portions
@@ -261,7 +261,7 @@ take n = fmap snd $ scan n f
     where
         f n _ | n > 0     = Just (n - 1)
               | otherwise = Nothing
-{-# INLINE take #-}
+{-# INLINE [0] #-}
 
 {-|
 Consume the next tokens satisfying the predicate. This parser always succeeds.
@@ -269,7 +269,7 @@ Consume the next tokens satisfying the predicate. This parser always succeeds.
 skipWhile :: ByoStream i
           => (Token i -> Bool) -> ParserPrim i e s r ()
 skipWhile test = fmap (\_ -> ()) $ takeWhile test
-{-# INLINE skipWhile #-}
+{-# INLINE [0] skipWhile #-}
 
 {-|
 Consume the next tokens satisfying the predicate and produce them as a stream.
@@ -280,7 +280,7 @@ takeWhile :: ByoStream i
 takeWhile test = fmap snd $ scan () f
     where
         f () x = if test x then Just () else Nothing
-{-# INLINE takeWhile #-}
+{-# INLINE [1] takeWhile #-}
 
 {-|
 Consume the next tokens until one satisfies the predicate, and produce them as
@@ -290,7 +290,7 @@ This parser always succeeds.
 takeTill :: ByoStream i
          => (Token i -> Bool) -> ParserPrim i e s r i
 takeTill test = takeWhile (not . test)
-{-# INLINE takeTill #-}
+{-# INLINE [0] takeTill #-}
 
 -----
 -- Instances
