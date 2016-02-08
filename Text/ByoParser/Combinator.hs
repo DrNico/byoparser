@@ -61,11 +61,11 @@ count n p = count_p n
         | n > 0 = Prim $ \noC okS noS okC ->
             runPrim p
                 noC
-                (\_ -> noS undefined)  -- TODO flag accepts empty input
+                (\_ -> noS ErrPrimLoop)
                 noS
                 (\o -> runPrim (count_p (n - 1))
                         noC
-                        (\_ -> noS undefined) -- TODO idem
+                        (\_ -> noS ErrPrimLoop)
                         noC
                         (\os -> okC (o:os))
                 )
@@ -122,11 +122,11 @@ skipSome :: ParserPrim i e s r o -> ParserPrim i e s r ()
 skipSome p = Prim $ \noC okS noS okC ->
     runPrim p
         noC
-        (\_ -> noS undefined) -- TODO flag empty match
+        (\_ -> noS ErrPrimLoop)
         noS
         (\o -> runPrim (many p)
                 noC
-                (\_ -> noS undefined)
+                (\_ -> noS ErrPrimNoMatch)
                 (\_ -> okC ())
                 (\_ -> okC ())
         )
@@ -134,14 +134,20 @@ skipSome p = Prim $ \noC okS noS okC ->
 
 {-|
 Runs the supplied parser without consuming any input. This parser
-succedes if and only if the supplied parser succeeds.
+succeeds if and only if the supplied parser succeeds.
+
+This is a backtracking parser. If the supplied parser consumes input, the
+stream is reset to the starting state.
+
+/Warning/ : Changes to the parse state @s@ performed by the supplied parser
+are /not/ reset, both on succes and failure.
 -}
 lookAhead :: ParserPrim i e s r o -> ParserPrim i e s r o
 lookAhead p = Prim $ \noC okS noS okC ->
-    \s i -> runPrim p
-        noC
+    \i -> runPrim p
+        (\e _ -> noS e i)
         okS
         noS
-        (\o _ _ -> okS o s i)
-        s i
+        (\o _ -> okS o i)
+        i
 {-# INLINE lookAhead #-}
