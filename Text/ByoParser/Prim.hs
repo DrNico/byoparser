@@ -23,16 +23,17 @@ For more information, read the documentation!
 -}
 module Text.ByoParser.Prim (
     ParserPrim(..),
-    parsePrim, parseMaybe,
+    parsePrim, parseMaybe, parseEither,
     ResultPrim(..),
-    ErrorPrim(..)
+    ErrorPrim(..),
+    Alternative(..)
 ) where
 
 import Control.Applicative  ( Applicative(..), Alternative(..) )
 import Control.Monad        ( Monad(..), ap )
 import Data.Functor         ( Functor(..) )
 
-import Prelude ( ($), Maybe(..) )
+import Prelude ( ($), String, (++), Maybe(..), Either(..), Show(..) )
 
 {-|
 The primitive parser type on which all other parsers are built,
@@ -72,6 +73,16 @@ parseMaybe :: ParserPrim i e s r r -> i -> s -> Maybe r
 parseMaybe p i s = case parsePrim p i s of
     ResPrimFail _ -> Nothing
     ResPrimDone r -> Just r
+
+{-|
+Run the parser on the given input stream and initial state, returning
+'Right' a result or 'Left' an error string.
+-}
+parseEither :: Show e
+            => ParserPrim i e s r r -> i -> s -> Either String r
+parseEither p i s = case parsePrim p i s of
+    ResPrimFail e -> Left $ show e
+    ResPrimDone r -> Right r
 
 {-|
 Run the parser on the given input stream and initial state, returning
@@ -191,3 +202,9 @@ instance Alternative (ParserPrim i e s r) where
                     (\os -> okC (o:os))
             )
     {-# INLINE some #-}
+
+instance Show e => Show (ErrorPrim e) where
+    show ErrPrimNoMatch     = "ErrPrimNoMatch"
+    show ErrPrimEOF         = "ErrPrimEOF"
+    show ErrPrimLoop        = "ErrPrimLoop"
+    show (ErrUser e)        = "ErrUser " ++ show e

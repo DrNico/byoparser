@@ -34,6 +34,7 @@ module Text.ByoParser.Stream (
     skipWhile,
     take,
     takeWhile,
+    takeWhile1,
     takeTill
 ) where
 
@@ -42,7 +43,7 @@ import qualified Data.ByteString as BS
 import Data.List                ( stripPrefix )
 import Data.Word                ( Word8 )
 
-import Text.ByoParser.Prim      ( ParserPrim(..), ErrorPrim(..) )
+import Text.ByoParser.Prim      ( ParserPrim(..), ErrorPrim(..), empty )
 
 import Prelude (
     ($), (.), fst, snd,
@@ -227,7 +228,7 @@ peekChar = fmap fst $ scan Nothing f
     where
         f Nothing c  = Just (Just c)
         f (Just _) _ = Nothing
-{-# INLINE [0] #-}
+{-# INLINE [0] peekChar #-}
 
 {-|
 Produce the next token of the stream without consuming it, or fail if
@@ -244,7 +245,7 @@ peekChar' = Prim $ \noC okS noS okC ->
             (error "unpossible! 'peekChar' failed")
             (error "unpossible! 'peekChar' consumed input")
             i
-{-# INLINE [0] #-}
+{-# INLINE [0] peekChar' #-}
 
 -----
 -- Capturing stream portions
@@ -261,7 +262,7 @@ take n = fmap snd $ scan n f
     where
         f n _ | n > 0     = Just (n - 1)
               | otherwise = Nothing
-{-# INLINE [0] #-}
+{-# INLINE [0] take #-}
 
 {-|
 Consume the next tokens satisfying the predicate. This parser always succeeds.
@@ -281,6 +282,19 @@ takeWhile test = fmap snd $ scan () f
     where
         f () x = if test x then Just () else Nothing
 {-# INLINE [1] takeWhile #-}
+
+{-|
+Consume at least one of the next tokens satisfying the predicate and
+return them as a stream. This parser fails if not a single token matches.
+-}
+takeWhile1 :: ByoStream i
+           => (Token i -> Bool) -> ParserPrim i e s r i
+takeWhile1 test = do
+    (t,r) <- scan False f
+    if t then return r
+         else empty
+    where
+        f _ x = if test x then Just True else Nothing
 
 {-|
 Consume the next tokens until one satisfies the predicate, and produce them as

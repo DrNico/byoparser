@@ -8,14 +8,14 @@ Maintainer      : nicolas.godbout@gmail.com
 Stability       : unstable
 -}
 module Text.ByoParser (
-    parseMaybe,
+    module Text.ByoParser.Prim,
     module Text.ByoParser.Combinator,
     module Text.ByoParser.Error
 ) where
 
 import Text.ByoParser.Combinator
 import Text.ByoParser.Error
-import Text.ByoParser.Prim          ( ParserPrim, parseMaybe )
+import Text.ByoParser.Prim
 import Text.ByoParser.Result
 import Text.ByoParser.State
 import Text.ByoParser.Stream

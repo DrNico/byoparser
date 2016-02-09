@@ -15,6 +15,7 @@ module Text.ByoParser.Result (
     PartialResult(..),
     parsePartial,
     parsePartialM,
+    feed,
     break
     -- Lazy results streams
 ) where
@@ -49,6 +50,15 @@ parsePartial p i s =
     where
         no e _ _ = ResPrimFail e
         ok r _ _ = ResPrimDone (PDone r)
+
+{-|
+Feed more input to a 'PartialResult'.
+-}
+feed :: PartialResult i e r -> i
+     -> PartialResult i e r
+feed (PDone r) _ = PDone r
+feed (PFail e) _ = PFail e
+feed (PMore f) i = f i
 
 {-|
 Parse the given stream with the given initial parsing state, and extract
