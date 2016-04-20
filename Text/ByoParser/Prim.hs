@@ -136,7 +136,7 @@ instance Monad (ParserPrim i e s r) where
             noC
             (\o -> runPrim (f o) noC okS noS okC)
             noS
-            (\o -> runPrim (f o) noC okC noS okC)
+            (\o -> runPrim (f o) noC okC noC okC)
     {-# INLINE (>>=) #-}
 
     m >> f   = Prim $ \noC okS noS okC ->
@@ -144,7 +144,7 @@ instance Monad (ParserPrim i e s r) where
             noC
             (\o -> runPrim f noC okS noS okC)
             noS
-            (\o -> runPrim f noC okS noS okC)
+            (\o -> runPrim f noC okC noC okC)
     {-# INLINE (>>) #-}
 
 instance Applicative (ParserPrim i e s r) where
