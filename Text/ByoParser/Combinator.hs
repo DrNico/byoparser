@@ -20,11 +20,12 @@ module Text.ByoParser.Combinator (
     optionMaybe,
     optional,
     skipSome,
-    lookAhead
+    lookAhead,
+    sepBy1
 ) where
 
 import Control.Applicative  ( many )
-import Control.Monad        ( return )
+import Control.Monad        ( (>>), return )
 import Data.Maybe
 
 import Text.ByoParser.Prim  ( ParserPrim(..), ErrorPrim(..) )
@@ -151,3 +152,14 @@ lookAhead p = Prim $ \noC okS noS okC ->
         (\o _ -> okS o i)
         i
 {-# INLINE lookAhead #-}
+
+{-|
+Match the first parser one or more times, while matching the second
+parser in between and ignoring its output.
+-}
+sepBy1 :: ParserPrim i e s r o -> ParserPrim i e s r w
+       -> ParserPrim i e s r [o]
+sepBy1 p s = do
+    r <- p
+    rs <- many (s >> p)
+    return (r : rs)
