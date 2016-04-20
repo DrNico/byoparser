@@ -33,7 +33,7 @@ import Control.Applicative  ( Applicative(..), Alternative(..) )
 import Control.Monad        ( Monad(..), ap )
 import Data.Functor         ( Functor(..) )
 
-import Prelude ( ($), String, (++), Maybe(..), Either(..), Show(..) )
+import Prelude ( ($), String, (++), Maybe(..), Either(..), Show(..), error )
 
 {-|
 The primitive parser type on which all other parsers are built,
@@ -175,19 +175,17 @@ instance Alternative (ParserPrim i e s r) where
             okC
     {-# INLINE (<|>) #-}
 
-    many p   = many_p
-        where
-        many_p = Prim $ \noC okS noS okC ->
-            runPrim p
-                noC
-                panicLoop
-                (\_ -> okS [])
-                (\o -> runPrim (many_p)
-                        noC
-                        panicLoop
-                        (\_ -> okC [o])
-                        (\os -> okC (o:os))
-                )
+    many p   = Prim $ \noC okS noS okC ->
+        runPrim p
+            noC
+            panicLoop
+            (\_ -> okS [])
+            (\o -> runPrim (some p)
+                    noC
+                    (error "unpossible! 'some' succeeded without consuming input")
+                    (\_ -> okC [o])
+                    (\os -> okC (o:os))
+            )
     {-# INLINE many #-}
 
     some p   = Prim $ \noC okS noS okC ->
@@ -195,7 +193,7 @@ instance Alternative (ParserPrim i e s r) where
             noC
             panicLoop
             noS
-            (\o -> runPrim (many p)
+            (\o -> runPrim (some p)
                     noC
                     panicLoop
                     (\_ -> okC [o])
