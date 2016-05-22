@@ -23,7 +23,7 @@ For more information, read the documentation!
 -}
 module Text.ByoParser.Prim (
     ParserPrim(..),
-    parsePrim, parseMaybe, parseEither,
+    parsePrim, parse, parseMaybe, parseEither,
     ResultPrim(..),
     ErrorPrim(..),
     Alternative(..)
@@ -62,6 +62,16 @@ newtype ParserPrim i e s r o = Prim {
                 -> (o -> i -> s -> ResultPrim e r)           -- consumed success continuation
                 -> i -> s -> ResultPrim e r                  -- resulting parser
 }
+
+{-|
+Run the parser on the given input stream and initial state. Failure
+causes a runtime error.
+-}
+parse :: Show e
+      => ParserPrim i e s r r -> i -> s -> r
+parse p i s = case parsePrim p i s of
+    ResPrimFail e -> error $ show e
+    ResPrimDone o -> o
 
 {-|
 Run the parser on the given input stream and initial state, returning
