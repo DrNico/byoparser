@@ -21,7 +21,7 @@ module Text.ByoParser.Result (
 ) where
 
 import Control.Monad            ( Monad(..) )
-import Control.Monad.Identity   ( Identity )
+-- import Control.Monad.Identity   ( Identity )
 
 import Text.ByoParser.Prim      ( ParserPrim(..), ResultPrim(..), ErrorPrim )
 import Text.ByoParser.Stream    ( ByoStream(..), endOfInput )

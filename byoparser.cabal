@@ -43,6 +43,7 @@ library
   exposed-modules:     Text.ByoParser,
                        Text.ByoParser.Combinator,
                        Text.ByoParser.Error,
+                       Text.ByoParser.Lexer,
                        Text.ByoParser.Prim,
                        Text.ByoParser.Result,
                        Text.ByoParser.State,
@@ -60,8 +61,9 @@ library
                        TypeFamilies
 
   build-depends:       base >=4.8 && <5.0,
-                       bytestring >=0.10 && <1.0,
-                       mtl >=2.2.1
+                       bytestring >=0.10 && <1.0
+--                       fix-algebra >=0.1
+--                       mtl >=2.2.1
 --                       utf8-string >=1.0.1.1 && <1.1
 
   -- Directories containing source files.
