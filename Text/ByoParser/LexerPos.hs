@@ -1,7 +1,14 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-module LexerPos where
+module Text.ByoParser.LexerPos (
+    Lexer,
+    lex,
+    char, anyChar, satisfy, string,
+    sepBy, sepBy1, skipSpaces,
+    SrcLoc(..),
+    location
+) where
 
 import Control.Applicative  ( Alternative(..) )
 import Control.Monad

@@ -44,6 +44,7 @@ library
                        Text.ByoParser.Combinator,
                        Text.ByoParser.Error,
                        Text.ByoParser.Lexer,
+                       Text.ByoParser.LexerPos,
                        Text.ByoParser.Prim,
                        Text.ByoParser.Result,
                        Text.ByoParser.State,
