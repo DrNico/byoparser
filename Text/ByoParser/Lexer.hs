@@ -1,4 +1,3 @@
-{-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE LambdaCase #-}
 
 {-|
@@ -10,10 +9,15 @@ Maintainer      : nicolas.godbout@gmail.com
 Stability       : unstable
 
 A Lexer is a transformer from stream to stream. This implementation represents
-streams with the 'Colist' type.
+streams as lists.
 
 -}
-module Text.ByoParser.Lexer where
+module Text.ByoParser.Lexer (
+    Lexer,
+    lex,
+    token, anyToken, satisfy, string, lookAhead,
+    endOfInput, sepBy, sepBy1, skipSpaces
+) where
 
 import Control.Applicative  ( Alternative(..) )
 import Control.Monad
@@ -79,6 +83,11 @@ string (c:cs) = do
     cs <- string cs
     return (c : cs)
 
+
+{-| Produce the remaining input without consuming it.
+-}
+lookAhead :: Lexer i [i]
+lookAhead = Lexer $ \i -> Cons i i
 
 sepBy :: Lexer i a -> Lexer i sep -> Lexer i [a]
 sepBy p sep = sepBy1 p sep <|> return []
