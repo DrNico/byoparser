@@ -4,8 +4,8 @@
 module Text.ByoParser.LexerPos (
     Lexer,
     lex,
-    char, anyChar, satisfy, string,
-    sepBy, sepBy1, skipSpaces,
+    char, anyChar, satisfy, string, letter, digit, newline,
+    sepBy, sepBy1, skipSpaces, endOfInput,
     SrcLoc(..),
     location
 ) where
@@ -51,6 +51,18 @@ satisfy test = Lexer $ \_ cont lin col s -> case s of
                            else cont lin (col + 1) (Cons c cs)
             | otherwise -> cont lin col Nil
 
+letter :: Lexer Char Char
+letter = satisfy isLetter
+
+digit :: Lexer Char Char
+digit = satisfy isDigit
+
+newline :: Lexer Char ()
+newline = do
+    char '\n'
+    return ()
+    -- TODO : recognize '\n\r' line terminations
+
 string :: [Char] -> Lexer Char [Char]
 string [] =
     return []
@@ -70,12 +82,20 @@ skipSpaces = do
     many (satisfy isSpace)
     return ()
 
+{-| Build a Lexer that succeeds only of the input stream is exhausted.
+-}
+endOfInput :: Lexer i ()
+endOfInput = Lexer go
+    where
+        go _ cont lin col [] = cont lin col (Cons () [])
+        go _ cont lin col _  = cont lin col Nil
+
 
 data SrcLoc = SrcLoc {
     srcFile     :: !String,
     srcLine     :: !Int,
     srcCol      :: !Int
-} deriving (Show)
+} deriving (Eq,Show)
 
 location :: Lexer i SrcLoc
 location = Lexer $ \fname cont lin col s ->
